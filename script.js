@@ -16,6 +16,29 @@ function isToday(date) {
            date.getFullYear() === today.getFullYear();
 }
 
+// Format date as YYYY-MM-DD for consistent keys
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Format date for display
+function formatDisplayDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// Format date for input[type="date"]
+function formatDateForInput(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // Event Listeners
 prevMonthBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
@@ -73,25 +96,17 @@ function renderCalendar() {
         }
         
         dayEl.innerHTML = `
-    <div class="day-number">${day}</div>
-    ${dayTasks.filter(task => !task.completed).slice(0, 3).map(task => `<div class="task-preview">${task.title}</div>`).join('')}
-    ${dayTasks.filter(task => !task.completed).length > 3 ? `<div class="more-tasks">+${dayTasks.filter(task => !task.completed).length - 3} more</div>` : ''}
-    <div class="tasks-count">${dayTasks.filter(task => !task.completed).length}</div>
-`;
+            <div class="day-number">${day}</div>
+            ${dayTasks.filter(task => !task.completed).slice(0, 3).map(task => `<div class="task-preview">${task.title}</div>`).join('')}
+            ${dayTasks.filter(task => !task.completed).length > 3 ? `<div class="more-tasks">+${dayTasks.filter(task => !task.completed).length - 3} more</div>` : ''}
+            <div class="tasks-count">${dayTasks.filter(task => !task.completed).length}</div>
+        `;
         
         // Add click event to open day's tasks
         dayEl.addEventListener('click', () => openDayTasks(dateStr));
         
         calendarEl.appendChild(dayEl);
     }
-}
-
-// Format date as YYYY-MM-DD for consistent keys
-function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
 }
 
 // Open tasks for a specific day
@@ -116,7 +131,13 @@ function openDayTasks(dateStr) {
                         <option value="weekly">Weekly</option>
                         <option value="monthly">Monthly</option>
                     </select>
-                    <input type="number" id="repeat-duration-${dateStr}" disabled min="1" value="1" placeholder="For how many days?">
+                    <div class="repeat-end-option">
+                        <label><input type="radio" name="repeat-end-${dateStr}" value="count" checked> For</label>
+                        <input type="number" id="repeat-duration-${dateStr}" min="1" value="1" placeholder="Number">
+                        <span id="repeat-unit-${dateStr}">days</span>
+                        <label><input type="radio" name="repeat-end-${dateStr}" value="date"> Until</label>
+                        <input type="date" id="repeat-end-date-${dateStr}" disabled>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,19 +145,44 @@ function openDayTasks(dateStr) {
     
     document.body.appendChild(modal);
     
+    // Set default end date (7 days from now)
+    const endDateInput = modal.querySelector(`#repeat-end-date-${dateStr}`);
+    const defaultEndDate = new Date();
+    defaultEndDate.setDate(defaultEndDate.getDate() + 7);
+    endDateInput.value = formatDateForInput(defaultEndDate);
+    
     // Close modal
     modal.querySelector('.close').addEventListener('click', () => {
         modal.remove();
     });
     
-    // Toggle repeat options
+    // Get repeat elements
     const repeatCheckbox = modal.querySelector(`#repeat-task-${dateStr}`);
     const repeatType = modal.querySelector(`#repeat-type-${dateStr}`);
     const repeatDuration = modal.querySelector(`#repeat-duration-${dateStr}`);
     
+    // Toggle repeat options
     repeatCheckbox.addEventListener('change', () => {
-        repeatType.disabled = !repeatCheckbox.checked;
-        repeatDuration.disabled = !repeatCheckbox.checked;
+        const repeatEnabled = repeatCheckbox.checked;
+        repeatType.disabled = !repeatEnabled;
+        repeatDuration.disabled = !repeatEnabled;
+        document.querySelector(`#repeat-end-date-${dateStr}`).disabled = !repeatEnabled;
+    });
+    
+    // Update unit text when repeat type changes
+    repeatType.addEventListener('change', () => {
+        const unit = repeatType.value === 'monthly' ? 'months' : 
+                     repeatType.value === 'weekly' ? 'weeks' : 'days';
+        document.querySelector(`#repeat-unit-${dateStr}`).textContent = unit;
+    });
+    
+    // Handle repeat end option changes
+    const repeatEndRadios = document.querySelectorAll(`input[name="repeat-end-${dateStr}"]`);
+    repeatEndRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelector(`#repeat-duration-${dateStr}`).disabled = radio.value !== 'count';
+            document.querySelector(`#repeat-end-date-${dateStr}`).disabled = radio.value !== 'date';
+        });
     });
     
     // Load existing tasks
@@ -147,18 +193,23 @@ function openDayTasks(dateStr) {
         const input = modal.querySelector(`#new-task-${dateStr}`);
         const title = input.value.trim();
         if (title) {
-            addTask(dateStr, title, 
-                   repeatCheckbox.checked ? repeatType.value : null,
-                   repeatCheckbox.checked ? repeatDuration.value : null);
+            const repeatTypeValue = repeatCheckbox.checked ? repeatType.value : null;
+            let repeatEndValue = null;
+            
+            if (repeatCheckbox.checked) {
+                const repeatEndOption = document.querySelector(`input[name="repeat-end-${dateStr}"]:checked`).value;
+                if (repeatEndOption === 'count') {
+                    repeatEndValue = parseInt(document.querySelector(`#repeat-duration-${dateStr}`).value);
+                } else {
+                    const endDate = new Date(document.querySelector(`#repeat-end-date-${dateStr}`).value);
+                    repeatEndValue = endDate;
+                }
+            }
+            
+            addTask(dateStr, title, repeatTypeValue, repeatEndValue);
             input.value = '';
         }
     });
-}
-
-// Format date for display
-function formatDisplayDate(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 // Render tasks for a specific day
@@ -191,8 +242,9 @@ function renderDayTasks(dateStr) {
         taskListEl.appendChild(taskEl);
     });
 }
+
 // Add a new task
-function addTask(dateStr, title, repeatType, repeatDuration) {
+function addTask(dateStr, title, repeatType, repeatEndValue) {
     if (!tasks[dateStr]) {
         tasks[dateStr] = [];
     }
@@ -206,8 +258,8 @@ function addTask(dateStr, title, repeatType, repeatDuration) {
     tasks[dateStr].push(newTask);
     saveTasks();
     
-    if (repeatType && repeatDuration) {
-        scheduleRepeatedTasks(dateStr, title, repeatType, parseInt(repeatDuration));
+    if (repeatType && repeatEndValue) {
+        scheduleRepeatedTasks(dateStr, title, repeatType, repeatEndValue);
     }
     
     renderCalendar();
@@ -215,10 +267,35 @@ function addTask(dateStr, title, repeatType, repeatDuration) {
 }
 
 // Schedule repeated tasks
-function scheduleRepeatedTasks(startDateStr, title, repeatType, duration) {
+function scheduleRepeatedTasks(startDateStr, title, repeatType, repeatEndValue) {
     const startDate = new Date(startDateStr);
+    let endDate;
     
-    for (let i = 1; i <= duration; i++) {
+    if (repeatEndValue instanceof Date) {
+        // Repeat until specific date
+        endDate = new Date(repeatEndValue);
+    } else {
+        // Repeat for specific count
+        const count = parseInt(repeatEndValue);
+        endDate = new Date(startDate);
+        
+        switch (repeatType) {
+            case 'daily':
+                endDate.setDate(startDate.getDate() + count);
+                break;
+            case 'weekly':
+                endDate.setDate(startDate.getDate() + (count * 7));
+                break;
+            case 'monthly':
+                endDate.setMonth(startDate.getMonth() + count);
+                break;
+        }
+    }
+    
+    let currentDate = new Date(startDate);
+    let i = 1;
+    
+    while (currentDate <= endDate) {
         const nextDate = new Date(startDate);
         
         switch (repeatType) {
@@ -233,6 +310,8 @@ function scheduleRepeatedTasks(startDateStr, title, repeatType, duration) {
                 break;
         }
         
+        if (nextDate > endDate) break;
+        
         const nextDateStr = formatDate(nextDate);
         
         if (!tasks[nextDateStr]) {
@@ -245,6 +324,9 @@ function scheduleRepeatedTasks(startDateStr, title, repeatType, duration) {
             createdAt: new Date().toISOString(),
             isRepeated: true
         });
+        
+        i++;
+        currentDate = new Date(nextDate);
     }
     
     saveTasks();
@@ -262,7 +344,7 @@ function toggleTaskCompletion(dateStr, index, completed) {
     // Find and update the calendar tile for this date
     const allDayElements = document.querySelectorAll('.day');
     allDayElements.forEach(dayEl => {
-        if (dayEl.textContent.includes(dateStr.split('-')[2])) { // Simple check for day number
+        if (dayEl.textContent.includes(dateStr.split('-')[2])) {
             const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), parseInt(dateStr.split('-')[2]));
             if (formatDate(date) === dateStr) {
                 const dayTasks = tasks[dateStr] || [];
@@ -297,13 +379,23 @@ function saveTasks() {
 }
 
 // Theme Toggle
-            const themeToggle = document.getElementById('theme-toggle');
-            const body = document.body;
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
 
-            themeToggle.addEventListener('click', () => {
-                const isDarkTheme = body.getAttribute('data-theme') === 'dark';
-                body.setAttribute('data-theme', isDarkTheme ? 'light' : 'dark');
-                themeToggle.textContent = isDarkTheme ? '🌓':'🌞';
-            });
+// Check for saved theme preference or use preferred color scheme
+const savedTheme = localStorage.getItem('theme') || 
+                   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+body.setAttribute('data-theme', savedTheme);
+themeToggle.textContent = savedTheme === 'dark' ? '🌞' : '🌓';
+
+themeToggle.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    themeToggle.textContent = newTheme === 'dark' ? '🌞' : '🌓';
+    localStorage.setItem('theme', newTheme);
+});
+
 // Initialize calendar
 renderCalendar();
