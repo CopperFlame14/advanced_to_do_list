@@ -73,11 +73,11 @@ function renderCalendar() {
         }
         
         dayEl.innerHTML = `
-            <div class="day-number">${day}</div>
-            ${dayTasks.slice(0, 3).map(task => `<div class="task-preview">${task.title}</div>`).join('')}
-            ${dayTasks.length > 3 ? `<div class="more-tasks">+${dayTasks.length - 3} more</div>` : ''}
-            <div class="tasks-count">${dayTasks.length}</div>
-        `;
+    <div class="day-number">${day}</div>
+    ${dayTasks.filter(task => !task.completed).slice(0, 3).map(task => `<div class="task-preview">${task.title}</div>`).join('')}
+    ${dayTasks.filter(task => !task.completed).length > 3 ? `<div class="more-tasks">+${dayTasks.filter(task => !task.completed).length - 3} more</div>` : ''}
+    <div class="tasks-count">${dayTasks.filter(task => !task.completed).length}</div>
+`;
         
         // Add click event to open day's tasks
         dayEl.addEventListener('click', () => openDayTasks(dateStr));
@@ -171,7 +171,7 @@ function renderDayTasks(dateStr) {
     
     dayTasks.forEach((task, index) => {
         const taskEl = document.createElement('div');
-        taskEl.className = 'task';
+        taskEl.className = `task ${task.completed ? 'completed-task' : ''}`;
         taskEl.innerHTML = `
             <input type="checkbox" ${task.completed ? 'checked' : ''} data-index="${index}" data-date="${dateStr}">
             <span class="${task.completed ? 'completed' : ''}">${task.title}</span>
@@ -191,7 +191,6 @@ function renderDayTasks(dateStr) {
         taskListEl.appendChild(taskEl);
     });
 }
-
 // Add a new task
 function addTask(dateStr, title, repeatType, repeatDuration) {
     if (!tasks[dateStr]) {
@@ -256,8 +255,29 @@ function toggleTaskCompletion(dateStr, index, completed) {
     tasks[dateStr][index].completed = completed;
     tasks[dateStr][index].completedAt = completed ? new Date().toISOString() : undefined;
     saveTasks();
+    
+    // Update both the day view and calendar tile immediately
     renderDayTasks(dateStr);
-    renderCalendar();
+    
+    // Find and update the calendar tile for this date
+    const allDayElements = document.querySelectorAll('.day');
+    allDayElements.forEach(dayEl => {
+        if (dayEl.textContent.includes(dateStr.split('-')[2])) { // Simple check for day number
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), parseInt(dateStr.split('-')[2]));
+            if (formatDate(date) === dateStr) {
+                const dayTasks = tasks[dateStr] || [];
+                dayEl.innerHTML = `
+                    <div class="day-number">${date.getDate()}</div>
+                    ${dayTasks.filter(task => !task.completed).slice(0, 3).map(task => `<div class="task-preview">${task.title}</div>`).join('')}
+                    ${dayTasks.filter(task => !task.completed).length > 3 ? `<div class="more-tasks">+${dayTasks.filter(task => !task.completed).length - 3} more</div>` : ''}
+                    <div class="tasks-count">${dayTasks.filter(task => !task.completed).length}</div>
+                `;
+                
+                // Reattach click event
+                dayEl.addEventListener('click', () => openDayTasks(dateStr));
+            }
+        }
+    });
 }
 
 // Delete task
