@@ -1,8 +1,12 @@
+/* Original styling with dark mode additions */
 :root {
+    /* Light theme colors (your original colors) */
     --bg-color: #f5f5f5;
     --text-color: #333;
     --container-bg: white;
+    --container-shadow: 0 0 10px rgba(0,0,0,0.1);
     --day-bg: white;
+    --day-border: #ddd;
     --day-hover: #f0f8ff;
     --day-header-bg: #eee;
     --modal-bg: white;
@@ -13,30 +17,46 @@
     --task-count-bg: #4CAF50;
     --other-month-bg: #f9f9f9;
     --other-month-color: #aaa;
+    --task-border: #eee;
+    --completed-task: #888;
+    --delete-btn: #ff4444;
+    --input-border: #ddd;
+    --more-tasks-color: #666;
 }
 
 [data-theme="dark"] {
-    --bg-color: #121212;
+    /* Dark theme colors that match original styling but darker */
+    --bg-color: #2d2d2d;
     --text-color: #e0e0e0;
     --container-bg: #1e1e1e;
-    --day-bg: #2d2d2d;
+    --container-shadow: 0 0 10px rgba(0,0,0,0.3);
+    --day-bg: #252525;
+    --day-border: #444;
     --day-hover: #3a3a3a;
-    --day-header-bg: #252525;
-    --modal-bg: #2d2d2d;
+    --day-header-bg: #333;
+    --modal-bg: #252525;
     --button-bg: #388e3c;
     --button-hover: #2e7d32;
     --current-day-bg: #003366;
     --current-day-border: #0066cc;
     --task-count-bg: #388e3c;
-    --other-month-bg: #252525;
+    --other-month-bg: #333;
     --other-month-color: #777;
+    --task-border: #444;
+    --completed-task: #999;
+    --delete-btn: #ff6666;
+    --input-border: #555;
+    --more-tasks-color: #888;
 }
 
+/* Body and container styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -45,21 +65,22 @@ body {
     background: var(--container-bg);
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    transition: background-color 0.3s;
+    box-shadow: var(--container-shadow);
+    transition: all 0.3s ease;
+}
+
+/* Calendar styles */
+.calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.calendar-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
 }
 
 .calendar {
@@ -69,13 +90,18 @@ body {
 }
 
 .day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
     background-color: var(--day-header-bg);
 }
 
 .day {
-    border: 1px solid var(--other-month-bg);
+    border: 1px solid var(--day-border);
+    min-height: 100px;
+    padding: 5px;
+    position: relative;
     background-color: var(--day-bg);
-    color: var(--text-color);
 }
 
 .day:hover {
@@ -88,7 +114,18 @@ body {
 }
 
 .tasks-count {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
     background-color: var(--task-count-bg);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
 }
 
 .other-month {
@@ -101,15 +138,22 @@ body {
     border: 2px solid var(--current-day-border) !important;
 }
 
+/* Button styles */
 button {
+    padding: 8px 16px;
     background-color: var(--button-bg);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
     background-color: var(--button-hover);
 }
 
-/* Modal Styles */
+/* Modal styles */
 .modal {
     position: fixed;
     top: 0;
@@ -125,6 +169,12 @@ button:hover {
 
 .modal-content {
     background: var(--modal-bg);
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
     color: var(--text-color);
 }
 
@@ -138,8 +188,10 @@ button:hover {
 .close {
     font-size: 24px;
     cursor: pointer;
+    color: var(--text-color);
 }
 
+/* Task styles */
 .task-list {
     margin-bottom: 20px;
 }
@@ -148,7 +200,7 @@ button:hover {
     display: flex;
     align-items: center;
     padding: 8px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--task-border);
 }
 
 .task input[type="checkbox"] {
@@ -157,14 +209,14 @@ button:hover {
 
 .task .completed {
     text-decoration: line-through;
-    color: #888;
+    color: var(--completed-task);
 }
 
 .delete-task {
     margin-left: auto;
     background: none;
     border: none;
-    color: #ff4444;
+    color: var(--delete-btn);
     font-size: 20px;
     cursor: pointer;
 }
@@ -177,8 +229,10 @@ button:hover {
 
 .task-form input[type="text"] {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
     border-radius: 4px;
+    background-color: var(--modal-bg);
+    color: var(--text-color);
 }
 
 .repeat-options {
@@ -189,15 +243,18 @@ button:hover {
     flex-wrap: wrap;
 }
 
-.repeat-options select, .repeat-options input[type="number"] {
+.repeat-options select, 
+.repeat-options input[type="number"] {
     padding: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
     border-radius: 4px;
+    background-color: var(--modal-bg);
+    color: var(--text-color);
 }
 
 .more-tasks {
     font-size: 12px;
-    color: #666;
+    color: var(--more-tasks-color);
     margin-top: 5px;
 }
 
@@ -209,14 +266,7 @@ button:hover {
     margin-bottom: 2px;
 }
 
-
-/* Add this new style for completed tasks in the modal */
+/* Completed tasks */
 .task.completed-task {
     opacity: 0.6;
-}
-
-/* Update the existing .completed style */
-.task .completed {
-    text-decoration: line-through;
-    color: #888;
 }
