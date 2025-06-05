@@ -193,3 +193,15 @@ button:hover {
     text-overflow: ellipsis;
     margin-bottom: 2px;
 }
+
+
+/* Add this new style for completed tasks in the modal */
+.task.completed-task {
+    opacity: 0.6;
+}
+
+/* Update the existing .completed style */
+.task .completed {
+    text-decoration: line-through;
+    color: #888;
+}
