@@ -1,3 +1,37 @@
+:root {
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --container-bg: white;
+    --day-bg: white;
+    --day-hover: #f0f8ff;
+    --day-header-bg: #eee;
+    --modal-bg: white;
+    --button-bg: #4CAF50;
+    --button-hover: #45a049;
+    --current-day-bg: #e6f7ff;
+    --current-day-border: #1890ff;
+    --task-count-bg: #4CAF50;
+    --other-month-bg: #f9f9f9;
+    --other-month-color: #aaa;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --container-bg: #1e1e1e;
+    --day-bg: #2d2d2d;
+    --day-hover: #3a3a3a;
+    --day-header-bg: #252525;
+    --modal-bg: #2d2d2d;
+    --button-bg: #388e3c;
+    --button-hover: #2e7d32;
+    --current-day-bg: #003366;
+    --current-day-border: #0066cc;
+    --task-count-bg: #388e3c;
+    --other-month-bg: #252525;
+    --other-month-color: #777;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -8,10 +42,17 @@ body {
 .container {
     max-width: 1000px;
     margin: 0 auto;
-    background: white;
+    background: var(--container-bg);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transition: background-color 0.3s;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .calendar-controls {
@@ -28,22 +69,17 @@ body {
 }
 
 .day-header {
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    background-color: #eee;
+    background-color: var(--day-header-bg);
 }
 
 .day {
-    border: 1px solid #ddd;
-    min-height: 100px;
-    padding: 5px;
-    position: relative;
-    background-color: white;
+    border: 1px solid var(--other-month-bg);
+    background-color: var(--day-bg);
+    color: var(--text-color);
 }
 
 .day:hover {
-    background-color: #f0f8ff;
+    background-color: var(--day-hover);
 }
 
 .day-number {
@@ -52,41 +88,25 @@ body {
 }
 
 .tasks-count {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
+    background-color: var(--task-count-bg);
 }
 
 .other-month {
-    background-color: #f9f9f9;
-    color: #aaa;
+    background-color: var(--other-month-bg);
+    color: var(--other-month-color);
 }
 
 .current-day {
-    background-color: #e6f7ff;
-    border: 2px solid #1890ff !important;
+    background-color: var(--current-day-bg);
+    border: 2px solid var(--current-day-border) !important;
 }
 
 button {
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    background-color: var(--button-bg);
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: var(--button-hover);
 }
 
 /* Modal Styles */
@@ -104,13 +124,8 @@ button:hover {
 }
 
 .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
+    background: var(--modal-bg);
+    color: var(--text-color);
 }
 
 .modal-header {
@@ -205,25 +220,3 @@ button:hover {
     text-decoration: line-through;
     color: #888;
 }
-
-[data-theme="dark"] {
-            --background-color: #121212;
-            --text-color: #e0e0e0;
-            --header-background: #0d0d0d;
-            --header-text: #e0e0e0;
-            --post-background: #1e1e1e;
-            --post-text: #e0e0e0;
-            --footer-background: #0d0d0d;
-            --footer-text: #e0e0e0;
-            --background-image: url('https://th.bing.com/th/id/R.b108427141d977e1530072a3268eea65?rik=4mlY93%2f66dMeAA&riu=http%3a%2f%2fwww.pixelstalk.net%2fwp-content%2fuploads%2f2016%2f08%2fNight-Sky-Milky-Way-Galaxy-Wallpaper.jpg&ehk=PeL8fhnPu3P4MbsHB%2fDsbaIyHdVOtcho0sta3wlylbk%3d&risl=&pid=ImgRaw&r=0'); /* No background image in dark theme */
-            --main-background:rgba(0, 0, 0, 0.5);
-        }
-/* Theme Toggle Button */
-        #theme-toggle {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: var(--header-text);
-            margin-left: auto;
-        }
