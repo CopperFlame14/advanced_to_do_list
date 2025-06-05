@@ -205,3 +205,25 @@ button:hover {
     text-decoration: line-through;
     color: #888;
 }
+
+[data-theme="dark"] {
+            --background-color: #121212;
+            --text-color: #e0e0e0;
+            --header-background: #0d0d0d;
+            --header-text: #e0e0e0;
+            --post-background: #1e1e1e;
+            --post-text: #e0e0e0;
+            --footer-background: #0d0d0d;
+            --footer-text: #e0e0e0;
+            --background-image: url('https://th.bing.com/th/id/R.b108427141d977e1530072a3268eea65?rik=4mlY93%2f66dMeAA&riu=http%3a%2f%2fwww.pixelstalk.net%2fwp-content%2fuploads%2f2016%2f08%2fNight-Sky-Milky-Way-Galaxy-Wallpaper.jpg&ehk=PeL8fhnPu3P4MbsHB%2fDsbaIyHdVOtcho0sta3wlylbk%3d&risl=&pid=ImgRaw&r=0'); /* No background image in dark theme */
+            --main-background:rgba(0, 0, 0, 0.5);
+        }
+/* Theme Toggle Button */
+        #theme-toggle {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--header-text);
+            margin-left: auto;
+        }
