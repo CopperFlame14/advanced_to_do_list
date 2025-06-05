@@ -270,3 +270,28 @@ button:hover {
 .task.completed-task {
     opacity: 0.6;
 }
+
+/* Add these new styles */
+.repeat-end-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.repeat-end-option input[type="radio"] {
+    margin-right: 5px;
+}
+
+.repeat-end-option input[type="date"] {
+    padding: 5px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background-color: var(--modal-bg);
+    color: var(--text-color);
+}
+
+#repeat-unit-${dateStr} {
+    white-space: nowrap;
+}
