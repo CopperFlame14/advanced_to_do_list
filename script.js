@@ -8,6 +8,14 @@ const currentMonthEl = document.getElementById('current-month');
 const prevMonthBtn = document.getElementById('prev-month');
 const nextMonthBtn = document.getElementById('next-month');
 
+// Helper function to check if a date is today
+function isToday(date) {
+    const today = new Date();
+    return date.getDate() === today.getDate() && 
+           date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
+}
+
 // Event Listeners
 prevMonthBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
@@ -52,11 +60,18 @@ function renderCalendar() {
     
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = formatDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        const dateStr = formatDate(date);
         const dayTasks = tasks[dateStr] || [];
         
         const dayEl = document.createElement('div');
         dayEl.className = 'day';
+        
+        // Add current-day class if this is today's date
+        if (isToday(date)) {
+            dayEl.classList.add('current-day');
+        }
+        
         dayEl.innerHTML = `
             <div class="day-number">${day}</div>
             ${dayTasks.slice(0, 3).map(task => `<div class="task-preview">${task.title}</div>`).join('')}
