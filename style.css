@@ -71,6 +71,11 @@ body {
     color: #aaa;
 }
 
+.current-day {
+    background-color: #e6f7ff;
+    border: 2px solid #1890ff !important;
+}
+
 button {
     padding: 8px 16px;
     background-color: #4CAF50;
