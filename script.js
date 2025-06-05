@@ -296,5 +296,14 @@ function saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
+// Theme Toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            themeToggle.addEventListener('click', () => {
+                const isDarkTheme = body.getAttribute('data-theme') === 'dark';
+                body.setAttribute('data-theme', isDarkTheme ? 'light' : 'dark');
+                themeToggle.textContent = isDarkTheme ? '🌓':'🌞';
+            });
 // Initialize calendar
 renderCalendar();
