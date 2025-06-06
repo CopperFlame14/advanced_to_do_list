@@ -295,28 +295,3 @@ button:hover {
 #repeat-unit-${dateStr} {
     white-space: nowrap;
 }
-
-.auth-container {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: var(--container-bg);
-  padding: 10px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-#sign-in, #sign-out {
-  padding: 8px 16px;
-  background-color: var(--button-bg);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#sign-in:hover, #sign-out:hover {
-  background-color: var(--button-hover);
-}
